@@ -1,0 +1,10 @@
+{
+  "id": "coolchordsheets",
+  "name": "Cool Chord Sheets",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "iReal Pro style chord sheets from plain text code blocks.",
+  "author": "Esteban Soler",
+  "isDesktopOnly": false,
+  "authorUrl": "https://github.com/EstebanMDQ"
+}

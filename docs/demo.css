@@ -1,0 +1,91 @@
+:root {
+  --demo-bg: #fafafa;
+  --demo-fg: #1f1f1f;
+  --demo-muted: #6b6b6b;
+  --demo-border: #ddd;
+  --demo-accent: #2f6fdd;
+  --demo-code: #f0f0f0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --demo-bg: #151515;
+    --demo-fg: #e6e6e6;
+    --demo-muted: #9a9a9a;
+    --demo-border: #333;
+    --demo-accent: #7fa8ff;
+    --demo-code: #222;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--demo-bg);
+  color: var(--demo-fg);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+a { color: var(--demo-accent); }
+header, main, footer {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+header { padding-top: 40px; padding-bottom: 8px; }
+header h1 { margin: 0 0 4px; font-size: 2rem; }
+header p { margin: 0; color: var(--demo-muted); }
+nav { margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 16px; }
+section { padding: 32px 0; border-top: 1px solid var(--demo-border); }
+section h2 { margin: 0 0 12px; }
+.editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 800px) {
+  .editor-grid { grid-template-columns: 1fr; }
+}
+#source {
+  width: 100%;
+  min-height: 320px;
+  font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  padding: 12px;
+  border: 1px solid var(--demo-border);
+  border-radius: 6px;
+  background: var(--demo-code);
+  color: var(--demo-fg);
+  resize: vertical;
+  white-space: pre;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin: 8px 0 12px;
+  color: var(--demo-muted);
+  font-size: 0.9rem;
+}
+.controls label { display: inline-flex; align-items: center; gap: 6px; }
+#preview {
+  border: 1px solid var(--demo-border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: var(--demo-bg);
+  min-height: 320px;
+  overflow: auto;
+}
+.example { margin: 0 0 32px; }
+.example h3 { margin: 0 0 4px; }
+.example p { margin: 0 0 8px; color: var(--demo-muted); }
+pre.snippet {
+  background: var(--demo-code);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+}
+figure { margin: 16px 0; }
+figure img { max-width: 100%; border: 1px solid var(--demo-border); border-radius: 6px; }
+figcaption { color: var(--demo-muted); font-size: 0.9rem; }
+ol li { margin: 4px 0; }
+footer { padding: 24px 16px 48px; color: var(--demo-muted); font-size: 0.9rem; }

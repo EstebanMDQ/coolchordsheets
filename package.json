@@ -1,0 +1,30 @@
+{
+  "name": "coolchordsheets",
+  "version": "0.1.0",
+  "description": "iReal Pro style chord sheets from plain text code blocks in Obsidian",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "test": "vitest run",
+    "build:web": "node esbuild.config.mjs web && node scripts/check-size.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "docs:check": "node scripts/docs-check.mjs",
+    "demo": "npm run build:web && rm -rf docs/dist && cp -r dist docs/dist && echo \"open docs/index.html\""
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "happy-dom": "^17.0.0",
+    "obsidian": "latest",
+    "typescript": "^5.4.0",
+    "vitest": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EstebanMDQ/coolchordsheets.git"
+  },
+  "homepage": "https://estebanmdq.github.io/coolchordsheets/"
+}

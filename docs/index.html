@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cool Chord Sheets</title>
+<meta name="description" content="Plain text chord charts rendered in the iReal Pro style, for Obsidian and any web page.">
+<link rel="stylesheet" href="./dist/coolchordsheets.css">
+<link rel="stylesheet" href="./demo.css">
+</head>
+<body>
+<header>
+  <h1>Cool Chord Sheets</h1>
+  <p>Plain text chord charts rendered in the iReal Pro style, as an Obsidian plugin and as a standalone script for any web page.</p>
+  <nav>
+    <a href="#editor">Try it</a>
+    <a href="#examples">Examples</a>
+    <a href="#obsidian">Obsidian plugin</a>
+    <a href="#library">Standalone library</a>
+    <a href="https://github.com/EstebanMDQ/coolchordsheets">GitHub</a>
+  </nav>
+</header>
+<main>
+
+<section id="editor">
+  <h2>Try it</h2>
+  <p>Type on the left, the chart renders on the right. The <a href="https://github.com/EstebanMDQ/coolchordsheets#grammar-reference">grammar reference</a> explains every symbol.</p>
+  <div class="controls">
+    <label><input type="checkbox" id="opt-holds"> Show holds</label>
+    <label><input type="checkbox" id="opt-uneven" checked> Mark uneven bars</label>
+    <label>Font size <input type="range" id="opt-size" min="10" max="32" value="16"> <span id="opt-size-label">16 px</span></label>
+  </div>
+  <div class="editor-grid">
+    <textarea id="source" spellcheck="false" aria-label="Chord sheet source">title: All of Me
+key: C
+time: 4/4
+
+[A]
+||: C | % | E7 | % |
+| A7 | % | D- | % |
+| [1.] E7 | % | A- | % :||
+| [2.] E7 | % | A- | % ||</textarea>
+    <div id="preview" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="examples">
+  <h2>Examples</h2>
+  <div class="example">
+    <h3>All of Me</h3>
+    <p>Header, section label, repeats and endings.</p>
+    <pre class="chordsheet">title: All of Me
+key: C
+time: 4/4
+
+[A]
+||: C | % | E7 | % |
+| A7 | % | D- | % |
+| [1.] E7 | % | A- | % :||
+| [2.] E7 | % | A- | % ||</pre>
+  </div>
+  <div class="example">
+    <h3>Timing</h3>
+    <p>Holds by spacing, tab and <code>_</code>, an uneven bar, and an unknown token. Holds are shown as dots here.</p>
+    <pre class="chordsheet" data-show-holds="true">title: Timing
+| C | C G7 | C   D- G7 | C D- G7    |
+| C	D- | C _ D- G7 | C   D- | H7 C |</pre>
+  </div>
+  <div class="example">
+    <h3>Structure</h3>
+    <p>Repeat counts, endings, coda, segno, D.S. al Coda, a time change, a text marker and a comment.</p>
+    <pre class="chordsheet">title: Structure
+key: Bb
+time: 4/4
+
+// intro
+|| Bb^7 | G-7 | C-7 | F7 ||
+
+[A]
+||: [segno] Bb^7 | Bb7 | Eb^7 | Eb-6 |
+| [1.] Bb^7 G7 | C-7 F7 :||x2
+| [2.] Bb^7 | [D.S. al Coda] F7 ||
+
+[B]
+| 3/4 D-7 | G7 | C^7 | % |
+| [Solo] C-7 F7 | 4/4 Bb^7 |
+
+[coda]
+| Eb^7 | Ab7 | Bb^7 | [fine] % ||</pre>
+  </div>
+</section>
+
+<section id="obsidian">
+  <h2>Obsidian plugin</h2>
+  <p>Put a fenced code block with the language <code>chordsheet</code> in any note. It renders in reading mode and in live preview, and exports to PDF through Obsidian's own export.</p>
+  <ol>
+    <li>Community plugins: search for "Cool Chord Sheets" once it is listed.</li>
+    <li>Until then, install with <a href="https://github.com/TfTHacker/obsidian42-brat">BRAT</a> using the repository URL, or copy <code>main.js</code>, <code>manifest.json</code> and <code>styles.css</code> from a release into <code>.obsidian/plugins/coolchordsheets/</code>.</li>
+    <li>Enable the plugin. Three settings: chord font size, show holds, mark uneven bars.</li>
+  </ol>
+  <figure>
+    <img src="./img/all-of-me.png" alt="All of Me rendered as a chord sheet" width="900">
+    <figcaption>The same renderer draws the chart in Obsidian and on this page.</figcaption>
+  </figure>
+  <!-- Hand-taken Obsidian screenshots go here once available (task 3.4 of docs-and-demo):
+  <figure><img src="./img/obsidian/reading-mode-0.1.0.png" alt="Chart in Obsidian reading mode" width="900"><figcaption>Reading mode.</figcaption></figure>
+  <figure><img src="./img/obsidian/settings-0.1.0.png" alt="Plugin settings tab" width="900"><figcaption>Settings.</figcaption></figure>
+  -->
+</section>
+
+<section id="library">
+  <h2>Standalone library</h2>
+  <p>Two files, no dependencies. Every <code>&lt;pre class="chordsheet"&gt;</code> becomes a chart when the page loads. Use <code>&lt;pre&gt;</code>, because the grammar counts spaces.</p>
+<pre class="snippet">&lt;link rel="stylesheet" href="coolchordsheets.css"&gt;
+&lt;pre class="chordsheet"&gt;
+| C | G7 | C   D- G7 | C D- G7    |
+&lt;/pre&gt;
+&lt;script src="coolchordsheets.js"&gt;&lt;/script&gt;</pre>
+  <p>Per-element options: <code>data-show-holds="true"</code>, <code>data-show-uneven="false"</code>, <code>data-font-size="20"</code>. Add <code>data-manual</code> to the script tag and call <code>CoolChordSheets.renderAll()</code> or <code>CoolChordSheets.render(text, el, options)</code> to control rendering yourself. See <a href="https://github.com/EstebanMDQ/coolchordsheets#using-on-a-web-page">the README</a> for the ES module build.</p>
+</section>
+
+</main>
+<footer>
+  <a href="https://github.com/EstebanMDQ/coolchordsheets">Source on GitHub</a> · <a href="https://github.com/EstebanMDQ/coolchordsheets/blob/main/LICENSE">MIT license</a>
+</footer>
+<script src="./dist/coolchordsheets.js"></script>
+<script src="./demo.js"></script>
+</body>
+</html>

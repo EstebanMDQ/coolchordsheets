@@ -1,0 +1,342 @@
+/* Cool Chord Sheets. Everything is scoped under .ccs-sheet. */
+
+.ccs-sheet {
+  --ccs-base-width: 6em;
+  --ccs-slot-width: 2.5em;
+  --ccs-gutter-width: 2.4em;
+  /* Obsidian theme variables with fallbacks for pages outside Obsidian. */
+  --ccs-line: var(--text-normal, #1f1f1f);
+  --ccs-muted: var(--text-muted, #6b6b6b);
+  --ccs-error: var(--text-error, #b3261e);
+  --ccs-bar-height: 3.2em;
+  --ccs-marks-height: 1.4em;
+  font-size: var(--ccs-font-size);
+  font-family: var(--font-interface, system-ui, -apple-system, "Segoe UI", sans-serif);
+  color: var(--ccs-line);
+  line-height: 1.2;
+  margin: 0.5em 0 1em;
+}
+
+body {
+  --ccs-font-size: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  .ccs-sheet {
+    --ccs-line: var(--text-normal, #e6e6e6);
+    --ccs-muted: var(--text-muted, #9a9a9a);
+    --ccs-error: var(--text-error, #ff7b72);
+  }
+}
+
+/* Resets so page styles do not bleed into the chart. */
+.ccs-sheet *,
+.ccs-sheet *::before,
+.ccs-sheet *::after {
+  box-sizing: border-box;
+}
+.ccs-sheet ul,
+.ccs-sheet li {
+  margin: 0;
+  padding: 0;
+}
+.ccs-sheet svg {
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+/* Header */
+.ccs-header {
+  text-align: center;
+  margin-bottom: 0.8em;
+}
+.ccs-title {
+  font-size: 1.5em;
+  font-weight: 700;
+}
+.ccs-key {
+  display: block;
+  font-size: 0.85em;
+  color: var(--ccs-muted);
+}
+
+/* Rows. The body is one grid (gutter + one column per bar position) and each row is a
+   subgrid, so bar N lines up across the whole chart. */
+.ccs-body {
+  display: grid;
+  grid-template-columns: var(--ccs-gutter-width) repeat(var(--ccs-cols, 4), minmax(auto, 1fr));
+  overflow-x: auto;
+  overflow-y: visible;
+}
+.ccs-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: end;
+  padding-top: var(--ccs-marks-height);
+}
+.ccs-gutter {
+  display: flex;
+  align-items: center;
+  height: var(--ccs-bar-height);
+}
+.ccs-section-box {
+  display: inline-block;
+  border: 2px solid var(--ccs-line);
+  padding: 0 0.3em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+@supports not (grid-template-columns: subgrid) {
+  .ccs-body {
+    display: block;
+  }
+  .ccs-row {
+    display: flex;
+    align-items: flex-end;
+    overflow-x: auto;
+  }
+  .ccs-gutter {
+    flex: 0 0 var(--ccs-gutter-width);
+  }
+  .ccs-cell {
+    flex: 0 0 auto;
+  }
+}
+
+/* Cells */
+.ccs-cell {
+  position: relative;
+  box-sizing: border-box;
+  min-width: max(var(--ccs-base-width), calc(var(--ccs-slots, 1) * var(--ccs-slot-width)));
+  border-left: 1.5px solid var(--ccs-line);
+  border-top: 2px dotted transparent;
+}
+.ccs-cell-body {
+  display: flex;
+  align-items: stretch;
+  height: var(--ccs-bar-height);
+}
+.ccs-cell[data-close] {
+  border-right: 1.5px solid var(--ccs-line);
+}
+
+/* Bar line kinds. The left border of a cell draws the line that opens it; the last
+   cell also draws its closing line. Repeat dots are pseudo elements. */
+.ccs-cell[data-open="double"],
+.ccs-cell[data-open="repeatOpen"],
+.ccs-cell[data-open="repeatBoth"] {
+  border-left-width: 4px;
+  border-left-style: double;
+}
+.ccs-cell[data-close="double"],
+.ccs-cell[data-close="repeatClose"],
+.ccs-cell[data-close="repeatBoth"] {
+  border-right-width: 4px;
+  border-right-style: double;
+}
+.ccs-cell[data-open="repeatOpen"]::before,
+.ccs-cell[data-open="repeatBoth"]::before,
+.ccs-cell[data-close="repeatClose"]::after,
+.ccs-cell[data-close="repeatBoth"]::after,
+.ccs-cell[data-close-dots]::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--ccs-bar-height) / 2 - 0.55em);
+  width: 0.28em;
+  height: 1.1em;
+  background:
+    radial-gradient(circle at 50% 22%, var(--ccs-line) 0.12em, transparent 0.13em),
+    radial-gradient(circle at 50% 78%, var(--ccs-line) 0.12em, transparent 0.13em);
+  pointer-events: none;
+}
+.ccs-cell[data-open="repeatOpen"]::before,
+.ccs-cell[data-open="repeatBoth"]::before {
+  left: 0.15em;
+}
+.ccs-cell[data-close="repeatClose"]::after,
+.ccs-cell[data-close="repeatBoth"]::after,
+.ccs-cell[data-close-dots]::after {
+  right: 0.15em;
+}
+
+/* Keep the time signature and chords clear of the repeat dots. */
+.ccs-cell[data-open="repeatOpen"] .ccs-cell-body,
+.ccs-cell[data-open="repeatBoth"] .ccs-cell-body {
+  margin-left: 0.5em;
+}
+.ccs-cell[data-close="repeatClose"] .ccs-cell-body,
+.ccs-cell[data-close="repeatBoth"] .ccs-cell-body,
+.ccs-cell[data-close-dots] .ccs-cell-body {
+  margin-right: 0.5em;
+}
+
+/* Uneven timing marker */
+.ccs-show-uneven .ccs-cell[data-timing="uneven"] {
+  border-top-color: var(--ccs-muted);
+}
+
+/* Marks above the bar */
+.ccs-marks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(-1 * var(--ccs-marks-height));
+  height: var(--ccs-marks-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 0.75em;
+  padding: 0 0.3em;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.ccs-marks-left,
+.ccs-marks-right {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.4em;
+}
+.ccs-ending {
+  border-top: 1.5px solid var(--ccs-line);
+}
+.ccs-ending-start {
+  border-left: 1.5px solid var(--ccs-line);
+}
+.ccs-ending-label {
+  font-weight: 700;
+}
+.ccs-mark-jump {
+  font-style: italic;
+}
+.ccs-repeat-count {
+  font-weight: 700;
+}
+.ccs-svg {
+  width: 1.4em;
+  height: 1.4em;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+/* Time signature gutter inside a cell */
+.ccs-time {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.25em;
+  font-weight: 700;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+/* Chord area */
+.ccs-chords {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ccs-chords-repeat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ccs-chords-repeat .ccs-svg {
+  width: 1.6em;
+  height: 1.6em;
+}
+.ccs-token {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  padding-left: 0.25em;
+}
+.ccs-token.ccs-centered {
+  transform: translate(-50%, -50%);
+  padding-left: 0;
+}
+.ccs-root {
+  font-size: 1.25em;
+  font-weight: 600;
+}
+/* iReal Pro style: the accidental is raised, the quality and extensions sit small on the baseline. */
+.ccs-accidental {
+  font-size: 0.75em;
+  vertical-align: 0.5em;
+  margin: 0 -0.18em 0 -0.1em;
+}
+.ccs-quality {
+  font-size: 0.65em;
+  vertical-align: baseline;
+  margin-left: 0.08em;
+}
+.ccs-slash {
+  font-size: 1em;
+  margin: 0 0.05em;
+}
+.ccs-bass {
+  font-size: 0.9em;
+  font-weight: 600;
+}
+.ccs-nc .ccs-root {
+  font-size: 1em;
+  font-weight: 500;
+}
+.ccs-unknown {
+  font-size: 1em;
+  color: var(--ccs-muted);
+}
+.ccs-hold {
+  display: none;
+  width: 0.35em;
+  height: 0.35em;
+  border-radius: 50%;
+  background: var(--ccs-muted);
+  padding: 0;
+  margin-left: 0.25em;
+}
+.ccs-show-holds .ccs-hold {
+  display: block;
+}
+
+/* Diagnostics */
+.ccs-diagnostics {
+  margin: 0.6em 0 0;
+  padding-left: 1.2em;
+  font-size: 0.8em;
+  list-style: disc;
+}
+.ccs-diag-error {
+  color: var(--ccs-error);
+}
+.ccs-diag-warning {
+  color: var(--ccs-muted);
+}
+.ccs-render-error {
+  color: var(--ccs-error);
+  font-size: 0.85em;
+}
+
+/* Print */
+@media print {
+  .ccs-sheet {
+    --ccs-line: #000;
+    --ccs-muted: #444;
+    color: #000;
+    background: #fff;
+  }
+  .ccs-row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    overflow: visible;
+  }
+  .ccs-body {
+    overflow: visible;
+    width: 100%;
+  }
+  .ccs-diag-error {
+    color: #000;
+  }
+}
