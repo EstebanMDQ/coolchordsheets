@@ -66,6 +66,56 @@ describe("header", () => {
     expect(bars(sheet)[0].time).toEqual({ beats: 3, unit: 4 });
   });
 
+  it("author and notes", () => {
+    const sheet = parseChordSheet("author: Esteban\nnotes: Play it uptempo\n| C |");
+    expect(sheet.header.author).toBe("Esteban");
+    expect(sheet.header.notes).toEqual(["Play it uptempo"]);
+    expect(sheet.diagnostics).toEqual([]);
+  });
+
+  it("repeated notes", () => {
+    const sheet = parseChordSheet("notes: Medium swing\nnotes: Solos on A only\n| C |");
+    expect(sheet.header.notes).toEqual(["Medium swing", "Solos on A only"]);
+  });
+
+  it("header value starting with a colon", () => {
+    const sheet = parseChordSheet("title: :) smile\n| C |");
+    expect(sheet.header.title).toBe(":) smile");
+    expect(sheet.diagnostics).toEqual([]);
+  });
+
+  it("header value containing a bar character", () => {
+    const sheet = parseChordSheet("title: Me | You\nnotes: Intro | Head | Solos\n| C |");
+    expect(sheet.header.title).toBe("Me | You");
+    expect(sheet.header.notes).toEqual(["Intro | Head | Solos"]);
+    expect(bars(sheet)).toHaveLength(1);
+    expect(sheet.diagnostics).toEqual([]);
+  });
+
+  it("empty notes value is dropped", () => {
+    expect(parseChordSheet("notes:\n| C |").header.notes).toEqual([]);
+  });
+
+  it("empty key value is ignored without a warning", () => {
+    const sheet = parseChordSheet("key:\n| C |");
+    expect(sheet.header.key).toBeUndefined();
+    expect(sheet.header.keyRaw).toBeUndefined();
+    expect(sheet.diagnostics).toEqual([]);
+  });
+
+  it("header-shaped line with a bar after bars is unrecognized", () => {
+    const sheet = parseChordSheet("| C |\ntitle: Me | You");
+    expect(bars(sheet)).toHaveLength(1);
+    expect(sheet.diagnostics).toEqual([{ line: 2, severity: "error", message: expect.stringContaining("Unrecognized") }]);
+  });
+
+  it("word and colon before a bar line is a malformed line of bars", () => {
+    const sheet = parseChordSheet("Intro: | C | G |");
+    expect(sheet.header.extra).toEqual({});
+    expect(bars(sheet)).toHaveLength(3);
+    expect(sheet.diagnostics[0]).toMatchObject({ line: 1, severity: "error", message: "Line of bars must begin with a bar line" });
+  });
+
   it("minor key", () => {
     const sheet = parseChordSheet("key: G-\n| C |");
     expect(sheet.header.key).toMatchObject({ root: { letter: "G", accidental: null }, quality: "minor" });
@@ -91,6 +141,8 @@ describe("header", () => {
     const sheet = parseChordSheet("| C |");
     expect(sheet.header.title).toBeUndefined();
     expect(sheet.header.key).toBeUndefined();
+    expect(sheet.header.author).toBeUndefined();
+    expect(sheet.header.notes).toEqual([]);
     expect(sheet.header.time).toEqual({ beats: 4, unit: 4 });
   });
 
@@ -143,6 +195,26 @@ describe("bar lines", () => {
     expect(lines[0].bars[1].close.kind).toBe("double");
     expect(lines[1].bars[0].open.kind).toBe("repeatOpen");
     expect(sheet.diagnostics).toEqual([]);
+  });
+
+  it("close and reopen at line end closes this line and opens the next", () => {
+    const sheet = parseChordSheet("| C | G :||:\n| D | E :||");
+    const [a, b] = sheet.sections[0].lines;
+    expect(a.bars[1].close.kind).toBe("repeatClose");
+    expect(b.bars[0].open.kind).toBe("repeatOpen");
+    expect(sheet.diagnostics).toEqual([]);
+  });
+
+  it("bar line alone on a line warns", () => {
+    const sheet = parseChordSheet("| C |\n:||\n| D |");
+    expect(bars(sheet)).toHaveLength(2);
+    expect(sheet.diagnostics).toEqual([{ line: 2, severity: "warning", message: expect.stringContaining("ignored") }]);
+  });
+
+  it("close and reopen alone on a line opens the next line and warns about the close", () => {
+    const sheet = parseChordSheet("| C |\n:||:\n| D |");
+    expect(sheet.sections[0].lines[1].bars[0].open.kind).toBe("repeatOpen");
+    expect(sheet.diagnostics).toEqual([{ line: 2, severity: "warning", message: expect.stringContaining("Closing") }]);
   });
 
   it("opening repeat at end of last line warns", () => {
@@ -213,6 +285,8 @@ describe("whitespace tokenization", () => {
   it("tab is a hold", () => expect(kinds(bar("C\tD-").tokens)).toBe("C hold D-"));
   it("mixed tab and spaces", () => expect(kinds(bar(" C \t   D- ").tokens)).toBe("C hold hold D-"));
   it("explicit hold character", () => expect(kinds(bar(" C _ D- G7 ").tokens)).toBe("C hold D- G7"));
+  it("non-breaking space separates tokens", () => expect(kinds(bar(" C\u00a0D- ").tokens)).toBe("C D-"));
+  it("other unicode spaces separate tokens", () => expect(kinds(bar(" C\u2009D-\u3000G7\u1680A-\u205fE7 ").tokens)).toBe("C D- G7 A- E7"));
 });
 
 describe("timing tokens and even division", () => {

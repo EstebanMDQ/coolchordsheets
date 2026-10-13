@@ -54,7 +54,7 @@ const TABLE: Row[] = [
   [new RegExp(`^(?:-|m|min)(6|7|9|11|13|69|6/9)?${ALT}$`), "minor", (m) => (m[1] ?? "") + m[2]],
   [new RegExp(`^(?:o|dim)(7)?${ALT}$`), "dim", (m) => (m[1] ?? "") + m[2]],
   [new RegExp(`^(?:\\+7|7\\+|aug7|7#5)${ALT}$`), "aug", (m) => "7" + m[1]],
-  [new RegExp(`^(?:\\+|aug|#5)${ALT}$`), "aug", (m) => m[1]],
+  [new RegExp(`^(?:\\+|aug)${ALT}$`), "aug", (m) => m[1]],
   [new RegExp(`^(7|9|13)?sus4?${ALT}$`), "sus4", (m) => (m[1] ?? "") + m[2]],
   [new RegExp(`^(7)?sus2${ALT}$`), "sus2", (m) => (m[1] ?? "") + m[2]],
   [new RegExp(`^(7|9|11|13)${ALT}$`), "dominant", (m) => m[1] + m[2]],
@@ -80,7 +80,7 @@ function parseAccidental(ch: string | undefined): Accidental {
 export function parseChord(token: string): ChordSymbol | null {
   const text = normalizeInput(token);
   const letter = text.charAt(0);
-  if (letter < "A" || letter > "G" || letter.length === 0) return null;
+  if (letter < "A" || letter > "G") return null;
 
   let rest = text.slice(1);
   const rootAccidental = parseAccidental(rest.charAt(0));

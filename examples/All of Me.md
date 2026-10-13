@@ -4,8 +4,10 @@ The reference chart from the proposal.
 
 ```chordsheet
 title: All of Me
+author: Gerald Marks, Seymour Simons
 key: C
 time: 4/4
+notes: Medium swing
 
 [A]
 ||: C | % | E7 | % |

@@ -105,11 +105,19 @@ Section labels SHALL render as boxed text in the left gutter of the first row of
 - **THEN** the cell has `data-timing="uneven"` and a visible dotted top border
 
 ### Requirement: Header display
-The title SHALL render above the chart in a larger font. The key SHALL render below the title in smaller text when present, formatted with the chord formatter (so `Bb-` displays as `B♭-`).
+The header SHALL render above the chart when any of title, key, author or notes is present. The first row SHALL have three columns: the key on the left formatted with the chord formatter (so `Bb-` displays as `B♭-`), the title centered in a larger font, and the author on the right. Empty columns keep their space so the title stays centered. Notes SHALL render below that row, one line per note, in smaller italic muted text.
 
 #### Scenario: Title and key
 - **WHEN** the header has title `All of Me` and key `Bb`
-- **THEN** the title appears above the chart and `B♭` appears under it
+- **THEN** the title appears centered above the chart and `B♭` appears in the left column
+
+#### Scenario: Author and notes
+- **WHEN** the header has author `Esteban` and notes `Play it uptempo`
+- **THEN** `Esteban` appears in the right column and `Play it uptempo` appears below the title row
+
+#### Scenario: Notes only
+- **WHEN** the header has only `notes: Ballad`
+- **THEN** a header is rendered with an empty title row and the note below it
 
 ### Requirement: Theme and print
 All styles SHALL be scoped under a single root class and use Obsidian color variables so the chart is readable in light and dark themes. A print stylesheet SHALL force black on white, avoid page breaks inside a row, and scale rows to the printable width.

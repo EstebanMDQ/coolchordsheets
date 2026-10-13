@@ -22,11 +22,19 @@ Blank lines (empty or whitespace only) SHALL be ignored anywhere in the block. A
 - **THEN** the line is ignored and no diagnostic is produced
 
 ### Requirement: Header keys
-Lines before the first line of bars matching `<key>: <value>` SHALL be header lines, where `<key>` is one or more letters and the value is everything after the first colon, trimmed. Recognized keys are `title`, `key` and `time`. Unknown keys SHALL be stored in `header.extra` as a map and SHALL not produce a diagnostic. `time` MUST match the time signature token grammar and MUST default to `4/4` when absent or invalid (invalid produces a warning). `key` SHALL be parsed with the chord parser; its value is a root, optional accidental and optional minor spelling (`-`, `m`, `min`). A `key` value that does not parse SHALL be kept as raw text with a warning. A header-shaped line after the first line of bars SHALL be treated as an unrecognized line.
+Lines before the first line of bars matching `<key>: <value>` SHALL be header lines, where `<key>` is one or more letters and the value is everything after the first colon, trimmed. Recognized keys are `title`, `key`, `time`, `author` and `notes`. `notes` MAY appear on several lines; each value is kept in order as one note. Unknown keys SHALL be stored in `header.extra` as a map and SHALL not produce a diagnostic. `time` MUST match the time signature token grammar and MUST default to `4/4` when absent or invalid (invalid produces a warning). `key` SHALL be parsed with the chord parser; its value is a root, optional accidental and optional minor spelling (`-`, `m`, `min`). A `key` value that does not parse SHALL be kept as raw text with a warning. A header-shaped line after the first line of bars SHALL be treated as an unrecognized line.
 
 #### Scenario: Header with all keys
 - **WHEN** the block starts with `title: All of Me`, `key: Bb` and `time: 3/4` lines
 - **THEN** the AST header contains those three values and the initial time signature is 3/4
+
+#### Scenario: Author and notes
+- **WHEN** the header has `author: Esteban` and `notes: Play it uptempo`
+- **THEN** `header.author` is `Esteban` and `header.notes` is `["Play it uptempo"]`
+
+#### Scenario: Repeated notes
+- **WHEN** the header has `notes: Medium swing` followed by `notes: Solos on A only`
+- **THEN** `header.notes` is `["Medium swing", "Solos on A only"]`
 
 #### Scenario: Minor key
 - **WHEN** the header has `key: G-`
@@ -49,7 +57,7 @@ Lines before the first line of bars matching `<key>: <value>` SHALL be header li
 - **THEN** the AST header has no title or key and the time signature is 4/4
 
 ### Requirement: Bar lines
-The parser SHALL recognize these bar lines: `|` (single), `||` (double), `||:` (opening repeat), `:||` (closing repeat), `:||:` (closing then opening repeat). The shorter spellings `|:` and `:|` SHALL be accepted as aliases for `||:` and `:||`. A closing repeat MAY be followed by optional spaces, then `x` or `X` and a positive integer, giving a repeat count; the count is part of the bar line and never a token. Each line of bars SHALL begin and end with a bar line. An opening repeat at the end of a line SHALL be treated as the opening bar line of the next line of bars; if there is no next line it SHALL produce a warning and be treated as `||`.
+The parser SHALL recognize these bar lines: `|` (single), `||` (double), `||:` (opening repeat), `:||` (closing repeat), `:||:` (closing then opening repeat). The shorter spellings `|:` and `:|` SHALL be accepted as aliases for `||:` and `:||`. A closing repeat MAY be followed by optional spaces, then `x` or `X` and a positive integer, giving a repeat count; the count is part of the bar line and never a token. Each line of bars SHALL begin and end with a bar line. An opening repeat at the end of a line SHALL be treated as the opening bar line of the next line of bars; if there is no next line it SHALL produce a warning and be treated as `||`. A `:||:` at the end of a line SHALL close that line with `:||` and open the next line with `||:`.
 
 #### Scenario: Simple line
 - **WHEN** a line is `|| Bb | % | % | % |`

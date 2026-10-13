@@ -4,10 +4,11 @@
   --ccs-base-width: 6em;
   --ccs-slot-width: 2.5em;
   --ccs-gutter-width: 2.4em;
-  /* Obsidian theme variables with fallbacks for pages outside Obsidian. */
-  --ccs-line: var(--text-normal, #1f1f1f);
-  --ccs-muted: var(--text-muted, #6b6b6b);
-  --ccs-error: var(--text-error, #b3261e);
+  /* Obsidian theme variables. Outside Obsidian the chart follows the page's text color,
+     so it looks right in any theme without guessing at prefers-color-scheme. */
+  --ccs-line: var(--text-normal, currentColor);
+  --ccs-muted: var(--text-muted, color-mix(in srgb, currentColor 60%, transparent));
+  --ccs-error: var(--text-error, #d0453c);
   --ccs-bar-height: 3.2em;
   --ccs-marks-height: 1.4em;
   font-size: var(--ccs-font-size);
@@ -20,14 +21,6 @@
 body {
   --ccs-font-size: 16px;
 }
-@media (prefers-color-scheme: dark) {
-  .ccs-sheet {
-    --ccs-line: var(--text-normal, #e6e6e6);
-    --ccs-muted: var(--text-muted, #9a9a9a);
-    --ccs-error: var(--text-error, #ff7b72);
-  }
-}
-
 /* Resets so page styles do not bleed into the chart. */
 .ccs-sheet *,
 .ccs-sheet *::before,
@@ -44,19 +37,46 @@ body {
   vertical-align: bottom;
 }
 
-/* Header */
+/* Header: key left, title center, author right, notes below. */
 .ccs-header {
-  text-align: center;
   margin-bottom: 0.8em;
 }
+.ccs-header-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+  gap: 0.6em;
+}
+.ccs-header-left {
+  text-align: left;
+}
+.ccs-header-right {
+  text-align: right;
+}
 .ccs-title {
+  text-align: center;
   font-size: 1.5em;
   font-weight: 700;
 }
-.ccs-key {
-  display: block;
-  font-size: 0.85em;
+.ccs-key,
+.ccs-author {
+  font-size: 0.9em;
   color: var(--ccs-muted);
+}
+.ccs-note {
+  font-size: 0.85em;
+  font-style: italic;
+  color: var(--ccs-muted);
+  margin-top: 0.15em;
+}
+@media (max-width: 480px) {
+  .ccs-header-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ccs-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
 }
 
 /* Rows. The body is one grid (gutter + one column per bar position) and each row is a
@@ -124,6 +144,7 @@ body {
    cell also draws its closing line. Repeat dots are pseudo elements. */
 .ccs-cell[data-open="double"],
 .ccs-cell[data-open="repeatOpen"],
+.ccs-cell[data-open="repeatClose"],
 .ccs-cell[data-open="repeatBoth"] {
   border-left-width: 4px;
   border-left-style: double;
@@ -315,7 +336,7 @@ body {
   color: var(--ccs-muted);
 }
 .ccs-render-error {
-  color: var(--ccs-error);
+  color: var(--text-error, #d0453c);
   font-size: 0.85em;
 }
 
