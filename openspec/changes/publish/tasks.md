@@ -1,8 +1,8 @@
 ## 1. Repository
 
 - [x] 1.1 Point README, demo page, manifest authorUrl and package.json repository and homepage at EstebanMDQ/coolchordsheets
-- [ ] 1.2 First commit and push to main
-- [ ] 1.3 Enable GitHub Pages with the GitHub Actions source and confirm the Pages workflow deploys the demo (manual)
+- [x] 1.2 First commit and push to main
+- [x] 1.3 Enable GitHub Pages with the GitHub Actions source and confirm the Pages workflow deploys the demo (manual)
 
 ## 2. Release workflow
 

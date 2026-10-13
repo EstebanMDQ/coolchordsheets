@@ -38,12 +38,13 @@ for (const file of readdirSync("examples").filter((f) => f.endsWith(".md"))) {
   const text = fence(readFileSync(`examples/${file}`, "utf8"));
   if (!text) continue;
   const name = basename(file, ".md").toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  const rows = text.split("\n").filter((l) => l.includes("|")).length;
-  const hasHeader = /^(title|key):/m.test(text);
-  const height = Math.ceil(40 + (hasHeader ? 70 : 0) + rows * ROW + 40);
+  const rows = text.split("\n").filter((l) => /^\s*[|:]/.test(l)).length;
+  const hasHeader = /^\s*(title|key|author|notes):/im.test(text);
+  const notes = text.split("\n").filter((l) => /^\s*notes:/i.test(l)).length;
+  const height = Math.ceil(40 + (hasHeader ? 70 : 0) + notes * 1.4 * FONT + rows * ROW + 40);
   const html = `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="file://${resolve("dist/coolchordsheets.css")}">
-<style>body{margin:20px;background:#fff;font-size:${FONT}px}</style></head>
+<style>body{margin:20px;background:#fff;color:#1f1f1f}</style></head>
 <body><pre class="chordsheet">${text.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>
 <script src="file://${resolve("dist/coolchordsheets.js")}"></script></body></html>`;
   const page = `${outDir}/${name}.html`;

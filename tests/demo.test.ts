@@ -14,7 +14,6 @@ function fence(path: string): string {
 function loadPage(): void {
   const body = /<body>([\s\S]*)<\/body>/.exec(html)?.[1] ?? "";
   document.body.innerHTML = body.replace(/<script[^>]*><\/script>/g, "");
-  (0, eval)(readFileSync("dist/coolchordsheets.js", "utf8"));
   (0, eval)(`${readFileSync("dist/coolchordsheets.js", "utf8")};globalThis.CoolChordSheets = CoolChordSheets;`);
   (0, eval)(readFileSync("docs/demo.js", "utf8"));
 }

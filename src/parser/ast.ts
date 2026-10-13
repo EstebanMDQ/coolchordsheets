@@ -19,6 +19,9 @@ export interface Header {
   key?: ChordSymbol;
   /** Raw key text when it did not parse. */
   keyRaw?: string;
+  author?: string;
+  /** One entry per `notes:` line, in source order. */
+  notes: string[];
   time: TimeSignature;
   extra: Record<string, string>;
 }

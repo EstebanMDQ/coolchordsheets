@@ -69,6 +69,12 @@ describe("bar lines between cells", () => {
     expect(c[1].dataset.open).toBe("repeatBoth");
     expect(c[1].dataset.close).toBe("repeatClose");
   });
+
+  it("closing repeat mid row draws closing dots in the previous cell", () => {
+    const c = cells(rows(render("| C :|| D |"))[0]);
+    expect(c[0].dataset.closeDots).toBe("");
+    expect(c[1].dataset.open).toBe("repeatClose");
+  });
 });
 
 describe("chord placement", () => {
@@ -152,6 +158,10 @@ describe("section labels and markers", () => {
     expect(r[1].querySelector(".ccs-section-box")).toBeNull();
   });
 
+  it("empty label draws no box", () => {
+    expect(render("[ ]\n| C |").querySelector(".ccs-section-box")).toBeNull();
+  });
+
   it("first ending bracket", () => {
     const cell = cells(rows(render("| [1.] G7 |"))[0])[0];
     expect(cell.querySelector(".ccs-ending-label")?.textContent).toBe("1.");
@@ -197,15 +207,33 @@ describe("header display", () => {
   it("title and key", () => {
     const root = render("title: All of Me\nkey: Bb\n| C |");
     expect(root.querySelector(".ccs-title")?.textContent).toBe("All of Me");
-    expect(root.querySelector(".ccs-key")?.textContent).toBe("B♭");
+    expect(root.querySelector(".ccs-header-left .ccs-key")?.textContent).toBe("B\u266D");
+    expect(root.querySelector(".ccs-header-right")?.textContent).toBe("");
   });
 
   it("minor key formatted", () => {
     expect(render("key: G-\n| C |").querySelector(".ccs-key")?.textContent).toBe("G-");
   });
 
-  it("no header element without title or key", () => {
+  it("author and notes", () => {
+    const root = render("title: My song\nauthor: Esteban\nnotes: Play it uptempo\n| C |");
+    expect(root.querySelector(".ccs-header-right .ccs-author")?.textContent).toBe("Esteban");
+    const notes = Array.from(root.querySelectorAll(".ccs-note")).map((n) => n.textContent);
+    expect(notes).toEqual(["Play it uptempo"]);
+    const row = root.querySelector(".ccs-header-row")!;
+    expect(Array.from(row.children).map((c) => c.className)).toEqual(["ccs-header-left", "ccs-title", "ccs-header-right"]);
+  });
+
+  it("notes only", () => {
+    const root = render("notes: Ballad\n| C |");
+    expect(root.querySelector(".ccs-header")).not.toBeNull();
+    expect(root.querySelector(".ccs-title")?.textContent).toBe("");
+    expect(root.querySelector(".ccs-note")?.textContent).toBe("Ballad");
+  });
+
+  it("no header element without any header value", () => {
     expect(render("| C |").querySelector(".ccs-header")).toBeNull();
+    expect(render("key:\nnotes:\n| C |").querySelector(".ccs-header")).toBeNull();
   });
 });
 

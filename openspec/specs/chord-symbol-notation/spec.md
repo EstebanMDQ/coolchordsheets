@@ -71,7 +71,7 @@ Quality SHALL be one of: `major`, `minor`, `dominant`, `maj7`, `minmaj7`, `halfd
 | `h`, `h7`, `ø`, `ø7`, `m7b5`, `-7b5`, `min7b5` | halfdim | `7` |
 | `o`, `dim`, `°` | dim | |
 | `o7`, `dim7`, `°7` | dim | `7` |
-| `+`, `aug`, `#5` | aug | |
+| `+`, `aug` | aug | |
 | `+7`, `7+`, `aug7`, `7#5` | aug | `7` |
 | `sus`, `sus4`, `7sus`, `7sus4`, `9sus`, `9sus4`, `13sus` | sus4 | number if any |
 | `sus2`, `7sus2` | sus2 | number if any |

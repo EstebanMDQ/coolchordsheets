@@ -30,10 +30,19 @@ export default class ChordSheetPlugin extends Plugin {
   }
 
   onunload(): void {
-    clearSettings(document);
+    for (const doc of this.documents()) clearSettings(doc);
+  }
+
+  /** The main document plus the document of every pop-out window with an open leaf. */
+  private documents(): Set<Document> {
+    const docs = new Set<Document>([document]);
+    this.app.workspace.iterateAllLeaves((leaf) => docs.add(leaf.view.containerEl.ownerDocument));
+    return docs;
   }
 
   renderBlock(source: string, el: HTMLElement): void {
+    // Pop-out windows have their own document, so settings must be applied there too.
+    applySettings(el.ownerDocument, this.settings);
     try {
       const sheet = parseChordSheet(source);
       renderSheet(sheet, el.ownerDocument, el);
@@ -55,7 +64,7 @@ export default class ChordSheetPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
-    applySettings(document, this.settings);
+    for (const doc of this.documents()) applySettings(doc, this.settings);
   }
 }
 

@@ -98,8 +98,8 @@ function renderBar(doc: Document, bar: Bar, span: EndingSpan, isLast: boolean, s
   const cell = el(doc, "div", "ccs-cell");
   cell.dataset.open = bar.open.kind;
   if (isLast) cell.dataset.close = bar.close.kind;
-  // A close-then-open repeat between two cells draws its closing dots in this cell.
-  if (!isLast && bar.close.kind === "repeatBoth") cell.dataset.closeDots = "";
+  // A closing repeat between two cells draws its closing dots in this cell.
+  if (!isLast && (bar.close.kind === "repeatClose" || bar.close.kind === "repeatBoth")) cell.dataset.closeDots = "";
   if (bar.uneven) cell.dataset.timing = "uneven";
   const slots = Math.max(1, bar.tokens.length);
   cell.style.setProperty("--ccs-slots", String(slots));
@@ -148,7 +148,7 @@ function renderBar(doc: Document, bar: Bar, span: EndingSpan, isLast: boolean, s
 function renderLine(doc: Document, line: Line, label: string | null, isFirstBarOfChart: boolean): HTMLElement {
   const row = el(doc, "div", "ccs-row");
   const gutter = el(doc, "div", "ccs-gutter");
-  if (label !== null) gutter.appendChild(el(doc, "span", "ccs-section-box", label));
+  if (label) gutter.appendChild(el(doc, "span", "ccs-section-box", label));
   row.appendChild(gutter);
 
   const spans = endingSpans(line.bars);
@@ -167,13 +167,27 @@ function renderSection(doc: Document, section: Section, firstInChart: boolean): 
 
 function renderHeader(doc: Document, sheet: ChordSheet): HTMLElement | null {
   const { header } = sheet;
-  if (!header.title && !header.key && !header.keyRaw) return null;
+  const hasKey = header.key !== undefined || Boolean(header.keyRaw);
+  if (!header.title && !hasKey && !header.author && header.notes.length === 0) return null;
   const node = el(doc, "div", "ccs-header");
-  if (header.title) node.appendChild(el(doc, "div", "ccs-title", header.title));
+
+  // Key left, title center, author right. Empty sides keep their column so the title stays centered.
+  const row = el(doc, "div", "ccs-header-row");
+  const left = el(doc, "div", "ccs-header-left");
   if (header.key) {
-    node.appendChild(renderChordDisplay(doc, formatChord(header.key), "ccs-key"));
+    left.appendChild(renderChordDisplay(doc, formatChord(header.key), "ccs-key"));
   } else if (header.keyRaw) {
-    node.appendChild(el(doc, "div", "ccs-key", header.keyRaw));
+    left.appendChild(el(doc, "span", "ccs-key", header.keyRaw));
+  }
+  row.appendChild(left);
+  row.appendChild(el(doc, "div", "ccs-title", header.title ?? ""));
+  const right = el(doc, "div", "ccs-header-right");
+  if (header.author) right.appendChild(el(doc, "span", "ccs-author", header.author));
+  row.appendChild(right);
+  node.appendChild(row);
+
+  for (const note of header.notes) {
+    node.appendChild(el(doc, "div", "ccs-note", note));
   }
   return node;
 }

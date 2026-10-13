@@ -23,4 +23,4 @@
 ## 4. Deployment
 
 - [x] 4.1 Add .github/workflows/pages.yml (push to main, build:web, artifact of docs plus dist, deploy-pages)
-- [ ] 4.2 After the public repository exists: enable Pages, confirm the deployed site renders (manual)
+- [x] 4.2 After the public repository exists: enable Pages, confirm the deployed site renders (manual)

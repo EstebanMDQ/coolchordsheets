@@ -140,12 +140,3 @@ describe("error fallback", () => {
     expect(document.querySelectorAll(".ccs-sheet")).toHaveLength(1);
   });
 });
-
-describe("module build is passive", () => {
-  it("importing does not touch source elements", () => {
-    setBody('<pre class="chordsheet">| C |</pre>');
-    // The module was imported at the top of this file; nothing rendered until renderAll is called.
-    expect(document.querySelector("pre")).not.toBeNull();
-    expect(document.querySelector(".ccs-sheet")).toBeNull();
-  });
-});

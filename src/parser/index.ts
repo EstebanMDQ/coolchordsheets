@@ -104,7 +104,7 @@ function isNoChord(word: string): boolean {
 
 class Parser {
   private diagnostics: Diagnostic[] = [];
-  private header: Header = { time: DEFAULT_TIME, extra: {} };
+  private header: Header = { time: DEFAULT_TIME, notes: [], extra: {} };
   private sections: Section[] = [{ label: null, lines: [] }];
   private currentTime: TimeSignature = DEFAULT_TIME;
   private seenBars = false;
@@ -134,9 +134,23 @@ class Parser {
     };
   }
 
-  private parseLine(raw: string, lineNo: number): void {
+  private parseLine(rawLine: string, lineNo: number): void {
+    // Non-breaking and other Unicode spaces count as plain spaces.
+    const raw = rawLine.replace(/[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]/g, " ");
     const text = raw.trim();
     if (text === "" || text.startsWith("//")) return;
+
+    // Header values are free text and may contain "|", so check them before bar lines.
+    // A value that itself starts with a bar line is a malformed line of bars, not a header.
+    const header = /^([A-Za-z]+):\s*(.*)$/.exec(text);
+    if (header && !/^:?\|/.test(header[2])) {
+      if (this.seenBars) {
+        this.diag(lineNo, "error", `Unrecognized line: "${text}"`);
+      } else {
+        this.parseHeader(header[1].toLowerCase(), header[2].trim(), lineNo);
+      }
+      return;
+    }
 
     if (text.includes("|")) {
       this.parseBarLine(raw, lineNo);
@@ -155,18 +169,16 @@ class Parser {
       return;
     }
 
-    const header = /^([A-Za-z]+):\s*(.*)$/.exec(text);
-    if (header && !this.seenBars) {
-      this.parseHeader(header[1].toLowerCase(), header[2].trim(), lineNo);
-      return;
-    }
-
     this.diag(lineNo, "error", `Unrecognized line: "${text}"`);
   }
 
   private parseHeader(key: string, value: string, lineNo: number): void {
     if (key === "title") {
       this.header.title = value;
+    } else if (key === "author") {
+      this.header.author = value;
+    } else if (key === "notes") {
+      if (value !== "") this.header.notes.push(value);
     } else if (key === "time") {
       const time = parseTimeSignature(value);
       if (time) {
@@ -176,6 +188,7 @@ class Parser {
         this.diag(lineNo, "warning", `Invalid time signature "${value}", using 4/4`);
       }
     } else if (key === "key") {
+      if (value === "") return;
       const chord = parseChord(value);
       const simple =
         chord !== null &&
@@ -226,15 +239,10 @@ class Parser {
       }
     }
 
-    // A trailing opening repeat belongs to the next line.
+    // The opening half of a trailing "||:" or ":||:" belongs to the next line.
     const last = lines[lines.length - 1];
-    let carryOpen = false;
-    if (last.kind === "repeatOpen" && lines.length > 1) {
-      last.kind = "double";
-      carryOpen = true;
-    } else if (last.kind === "repeatOpen" && lines.length === 1 && contents.length === 0) {
-      carryOpen = true;
-    }
+    const carryOpen = last.kind === "repeatOpen" || last.kind === "repeatBoth";
+    if (carryOpen && contents.length > 0) last.kind = last.kind === "repeatOpen" ? "double" : "repeatClose";
 
     if (this.pendingOpenRepeat && contents.length > 0) {
       const open = lines[0];
@@ -243,9 +251,13 @@ class Parser {
     }
 
     if (contents.length === 0) {
+      // A bar line alone on its line: only an opening repeat has somewhere to go.
       if (carryOpen) {
         this.pendingOpenRepeat = true;
         this.pendingOpenRepeatLine = lineNo;
+        if (last.kind === "repeatBoth") this.diag(lineNo, "warning", "Closing repeat with no bars is ignored");
+      } else {
+        this.diag(lineNo, "warning", "Bar line with no bars is ignored");
       }
       return;
     }

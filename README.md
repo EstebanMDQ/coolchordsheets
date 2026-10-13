@@ -9,8 +9,10 @@ Write this in a note or a web page:
 ````
 ```chordsheet
 title: All of Me
+author: Gerald Marks, Seymour Simons
 key: C
 time: 4/4
+notes: Medium swing
 
 [A]
 ||: C | % | E7 | % |
@@ -47,8 +49,10 @@ Optional `key: value` lines before the first line of bars.
 | Key | Meaning |
 |---|---|
 | `title` | Shown above the chart |
-| `key` | A root with optional accidental and minor spelling: `Bb`, `G-`, `Gm`. Shown under the title |
+| `key` | A root with optional accidental and minor spelling: `Bb`, `G-`, `Gm`. Shown left of the title |
 | `time` | Initial time signature, default `4/4` |
+| `author` | Shown right of the title |
+| `notes` | Shown under the title in italics. Repeat the key for several lines |
 
 Other keys are kept but not displayed. Blank lines are ignored. Lines starting with `//` are comments.
 
@@ -65,7 +69,7 @@ Every line of bars starts and ends with a bar line.
 | `:\|\|:` | Close and reopen |
 | `:\|\|x3` or `:\|\| x3` | Closing repeat with a count |
 
-A line ending in `||:` opens a repeat on the next line. A bar containing only `%` repeats the previous bar.
+A line ending in `||:` opens a repeat on the next line, and a line ending in `:||:` closes the repeat and opens a new one on the next line. A bar containing only `%` repeats the previous bar.
 
 ### Timing inside a bar
 
@@ -120,9 +124,11 @@ A chord is a root `A` to `G`, an optional `b` or `#`, a quality, extensions and 
 | `C-^7` | C-Δ7 | `C-maj7`, `CmM7`, `Cminmaj7` |
 | `Ch7` | Cø7 | `Cm7b5`, `C-7b5`, `Cø7` |
 | `Co7` | Co7 | `Cdim7`, `C°7` |
-| `C+` | C+ | `Caug`, `C#5` |
+| `C+` | C+ | `Caug` |
 | `C+7` | C+7 | `C7+`, `Caug7`, `C7#5` |
-| `C7sus4` | C7sus4 | `C7sus`, `Csus`, `Csus2` |
+| `Csus4` | Csus4 | `Csus` |
+| `C7sus4` | C7sus4 | `C7sus` |
+| `Csus2` | Csus2 | `C7sus2` |
 | `C7b9` | C7♭9 | `C7(b9)`, alterations `b5 #5 b9 #9 #11 b13` in any row |
 | `C6/9` | C6/9 | `C69`, `Cadd9` |
 | `C7/E` | C7 over E | bass note with optional accidental |
